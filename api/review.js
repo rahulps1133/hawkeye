@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           temperature: 0.3,
-          maxOutputTokens: 8000,
+          maxOutputTokens: 16000,
           responseMimeType: 'application/json'
         }
       })
@@ -35,11 +35,30 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (data.error) {
-      return res.status(response.status).json({ error: data.error.message || 'Gemini API error' });
+      return res.status(response.status).json({ error: data.error.message || 'Gemini API error', raw: data });
     }
 
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return res.status(200).json({ text });
+    const candidate = data?.candidates?.[0];
+    const finishReason = candidate?.finishReason;
+    const text = candidate?.content?.parts?.[0]?.text || '';
+
+    if (!text) {
+      // No text came back — surface why (e.g. SAFETY, RECITATION, MAX_TOKENS, blocked prompt)
+      const blockReason = data?.promptFeedback?.blockReason;
+      return res.status(200).json({
+        error: `Gemini returned no usable text. finishReason: ${finishReason || 'unknown'}${blockReason ? ', blockReason: ' + blockReason : ''}`,
+        raw: data
+      });
+    }
+
+    if (finishReason === 'MAX_TOKENS') {
+      return res.status(200).json({
+        error: 'Response was cut off because it hit the token limit. Try a shorter document or fewer reference files.',
+        text
+      });
+    }
+
+    return res.status(200).json({ text, finishReason });
 
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Server error' });
