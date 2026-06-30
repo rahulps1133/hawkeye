@@ -354,8 +354,8 @@ async function startReview() {
       try { return `\n\n=== REFERENCE: ${f.name} ===\n` + await readFile(f); }
       catch(e) { return `\n\n=== ${f.name} ===\n[Could not read: ${e.message}]`; }
     }));
-    const calc = calcTexts.join('').substring(0, 55000);
-    const refs = refTexts.length ? '\n\n=== PROVIDED REFERENCE CODES ===\n' + refTexts.join('').substring(0, 18000) : '';
+    const calc = calcTexts.join('').substring(0, 40000);
+    const refs = refTexts.length ? '\n\n=== PROVIDED REFERENCE CODES ===\n' + refTexts.join('').substring(0, 12000) : '';
     S.loadingMsg = 'Hawkeye is scanning — this takes 30–60 seconds…'; renderTool();
 
     const sysPrompt = `You are a highly experienced structural engineering reviewer. Your audience knows engineering — they understand kN, moment diagrams, load combinations, and safety factors. Be specific, precise, and direct about what's wrong and why it matters.
@@ -365,6 +365,8 @@ You know ACI 318, AISC 360, ASCE 7, Eurocode EN 1990–1998, BS 5950, BS 8110, I
 Flag ALL of: mathematical errors, formula misapplication, unit inconsistencies, incorrect load combinations, safety factor violations, demand/capacity issues, missing checks, software model interpretation problems, code non-compliance, incomplete sections, ambiguous steps, cross-reference errors.
 
 Mark type="doubt" for sections that aren't clearly wrong but need clarification.
+
+Keep each "description" and "recommendation" concise — 1-3 sentences each, technical and specific, no padding. This keeps the full review within token limits even for documents with many findings.
 
 RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
 
@@ -398,11 +400,35 @@ RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
     });
 
     const data = await resp.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error && !data.text) throw new Error(data.error);
     const raw = data.text || '';
-    const m = raw.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error('The AI response did not contain valid data. This can happen with very large documents — try a shorter file or fewer pages.');
-    const result = JSON.parse(m[0]);
+    let result;
+    try {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('no json found');
+      result = JSON.parse(m[0]);
+    } catch (parseErr) {
+      // Try to salvage partial findings if the response was cut off mid-way
+      const findingsMatch = raw.match(/"findings"\s*:\s*\[([\s\S]*)/);
+      if (findingsMatch) {
+        const salvaged = [];
+        const objRegex = /\{[^{}]*"id"[^{}]*\}/g;
+        let mObj;
+        while ((mObj = objRegex.exec(findingsMatch[1])) !== null) {
+          try { salvaged.push(JSON.parse(mObj[0])); } catch(e) {}
+        }
+        if (salvaged.length) {
+          result = {
+            summary: 'Review partially completed — the response was cut off before finishing, but the findings below were successfully captured.',
+            compliance_status: 'needs-review',
+            software_detected: [],
+            codes_referenced: [],
+            findings: salvaged
+          };
+        }
+      }
+      if (!result) throw new Error('The AI response did not contain valid data. Try a shorter document or fewer reference files.');
+    }
     S.findings = result.findings || [];
     S.summary = result;
     S.step = 3; S.selected = null; S.filter = 'all';
@@ -708,3 +734,4 @@ window.hwrst  = ()     => { S={calcFiles:[],refFiles:[],step:1,findings:[],summa
 </script>
 </body>
 </html>
+
