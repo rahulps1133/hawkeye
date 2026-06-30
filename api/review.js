@@ -24,10 +24,10 @@ export default async function handler(req, res) {
           { role: 'user', parts: [{ text: userContent }] }
         ],
         systemInstruction: { parts: [{ text: systemPrompt }] },
+        tools: [{ google_search: {} }],
         generationConfig: {
           temperature: 0.3,
-          maxOutputTokens: 32000,
-          responseMimeType: 'application/json'
+          maxOutputTokens: 32000
         }
       })
     });
