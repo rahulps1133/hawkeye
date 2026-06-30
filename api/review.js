@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           temperature: 0.3,
-          maxOutputTokens: 16000,
+          maxOutputTokens: 32000,
           responseMimeType: 'application/json'
         }
       })
