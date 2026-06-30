@@ -388,24 +388,18 @@ RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
   ]
 }`;
 
-    // ↓ Calls the server-side function — API key never exposed to browser
+    // Calls the server-side function — API key never exposed to browser
+    const userContent = `Review this structural calculation package.${refs ? '\n\nReference codes provided — use them as the compliance baseline.' : '\n\nNo reference codes uploaded — use your engineering knowledge of applicable standards.'}\n\n${calc}${refs}`;
+
     const resp = await fetch('/api/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: sysPrompt,
-        messages: [{
-          role: 'user',
-          content: `Review this structural calculation package.${refs ? '\n\nReference codes provided — use them as the compliance baseline.' : '\n\nNo reference codes uploaded — use your engineering knowledge of applicable standards.'}\n\n${calc}${refs}`
-        }]
-      })
+      body: JSON.stringify({ systemPrompt: sysPrompt, userContent: userContent })
     });
 
     const data = await resp.json();
-    if (data.error) throw new Error(data.error.message || data.error || 'Server error');
-    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    if (data.error) throw new Error(data.error || 'Server error');
+    const raw = data.text || '';
     const m = raw.match(/\{[\s\S]*\}/);
     if (!m) throw new Error('Could not parse the review response. Please try again.');
     const result = JSON.parse(m[0]);
