@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -362,19 +363,33 @@ async function startReview() {
 
 You know ACI 318, AISC 360, ASCE 7, Eurocode EN 1990–1998, BS 5950, BS 8110, IS 456, IS 875, IS 1893, AS 1170, AS 3600, CSA standards, and national building codes. You can read STAAD.Pro, ETABS, SAP2000, RISA, SAFE, RAM, and MIDAS output reports.
 
+You have access to Google Search. Use it to:
+1. Verify applicable code requirements for any standards referenced or implied in the document
+2. Check whether the code edition/year used is the current published edition, or if a newer edition has since been released
+3. Confirm any numeric limits, factors, or clauses you cite are accurate for that edition
+
 Flag ALL of: mathematical errors, formula misapplication, unit inconsistencies, incorrect load combinations, safety factor violations, demand/capacity issues, missing checks, software model interpretation problems, code non-compliance, incomplete sections, ambiguous steps, cross-reference errors.
 
 Mark type="doubt" for sections that aren't clearly wrong but need clarification.
 
 Keep each "description" and "recommendation" concise — 1-3 sentences each, technical and specific, no padding. This keeps the full review within token limits even for documents with many findings.
 
-RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
+For "code_version_check": for every code/standard you identify being used in the document, search to confirm if it's the current edition, and list it with its status.
+
+RESPOND ONLY WITH VALID JSON, wrapped in nothing else — no markdown fences, no commentary before or after the JSON, even though you used search tools internally.
 
 {
   "summary": "2–3 sentence professional summary of the overall review",
   "compliance_status": "compliant|non-compliant|needs-review",
   "software_detected": ["software names found"],
   "codes_referenced": ["standards and codes found"],
+  "code_version_check": [
+    {
+      "code": "e.g. ACI 318-19",
+      "status": "current|outdated|unable-to-verify",
+      "note": "e.g. This is the current edition. or A newer edition (ACI 318-25) was released — confirm with the local jurisdiction which edition is mandated."
+    }
+  ],
   "findings": [
     {
       "id": 1,
@@ -442,16 +457,15 @@ RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
 // ══════════════════════════════════════════════════════════════════════
 //  DOWNLOAD REPORT
 // ══════════════════════════════════════════════════════════════════════
-function downloadReport() {
+function buildReportHTML() {
   const { findings, summary, calcFiles } = S;
-  if (!findings.length || !summary) return;
   const cnt = { critical:0, major:0, minor:0, observation:0 };
   findings.forEach(f => { if (cnt[f.severity] !== undefined) cnt[f.severity]++; });
   const sC = { critical:'#c0392b', major:'#d97706', minor:'#1a5ba8', observation:'#1a7a4a' };
   const sB = { critical:'#fdedec', major:'#fef9e7', minor:'#e8f0fb', observation:'#eafaf1' };
   const sBd = { critical:'#f5c6c6', major:'#fde68a', minor:'#bfcfef', observation:'#a9dfbf' };
 
-  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Hawkeye Review</title>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Hawkeye Review</title>
 <style>
 *{box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;max-width:920px;margin:0 auto;padding:28px 22px;color:#0c1e3d;line-height:1.6;background:#fff;}
 .edit-tip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 13px;font-size:12px;color:#1e40af;margin-bottom:18px;}
@@ -496,6 +510,10 @@ h2{color:#0c1e3d;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;
   ${summary.codes_referenced?.length?`<div class="tags">${summary.codes_referenced.map(c=>`<span class="tag-c">${c}</span>`).join('')}</div>`:''}
   ${summary.software_detected?.length?`<div class="tags">${summary.software_detected.map(s=>`<span class="tag-s">${s}</span>`).join('')}</div>`:''}
 </div>
+${summary.code_version_check?.length?`
+<h2>Code Edition Check</h2>
+${summary.code_version_check.map(c=>`<div style="padding:9px 12px;margin:6px 0;border-radius:6px;background:${c.status==='outdated'?'#fef9e7':c.status==='unable-to-verify'?'#e8f0fb':'#eafaf1'};"><strong style="font-size:12px;">${c.code}</strong><div style="font-size:11px;color:#555;margin-top:2px;">${c.note}</div></div>`).join('')}
+`:''}
 <div class="stats">
   <div class="sc sc-cr"><div class="n">${cnt.critical}</div><div class="l">Critical</div></div>
   <div class="sc sc-ma"><div class="n">${cnt.major}</div><div class="l">Major</div></div>
@@ -522,12 +540,53 @@ ${findings.map((f,i)=>`
   <p>Reviewer: _________________________________________________ &nbsp;&nbsp; Date: _______________ &nbsp;&nbsp; Signature / Stamp:</p>
 </div>
 </body></html>`;
+}
 
+function downloadReport() {
+  if (!S.findings.length || !S.summary) return;
+  const html = buildReportHTML();
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = `Hawkeye-Review-${Date.now()}.html`; a.click();
   URL.revokeObjectURL(url);
+}
+
+function downloadReportPDF() {
+  if (!S.findings.length || !S.summary) return;
+  const html = buildReportHTML();
+
+  const container = document.createElement('div');
+  container.innerHTML = html.replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/i, '').replace(/<\/body>[\s\S]*$/i, '');
+  const tip = container.querySelector('.edit-tip');
+  if (tip) tip.remove();
+  container.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  container.style.maxWidth = '920px';
+  container.style.padding = '10px 22px';
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.background = '#fff';
+  document.body.appendChild(container);
+
+  const btn = document.getElementById('pdf-dl-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="font-size:14px;animation:hw-spin .8s linear infinite;" aria-hidden="true"></i> Generating PDF…'; }
+
+  window.html2pdf().set({
+    margin: 10,
+    filename: `Hawkeye-Review-${Date.now()}.pdf`,
+    image: { type: 'jpeg', quality: 0.97 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] }
+  }).from(container).save().then(() => {
+    document.body.removeChild(container);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-file-type-pdf" aria-hidden="true"></i> PDF'; }
+  }).catch(() => {
+    document.body.removeChild(container);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-file-type-pdf" aria-hidden="true"></i> PDF'; }
+    alert('PDF generation failed. Please try the HTML download and use Ctrl+P to save as PDF instead.');
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -663,6 +722,26 @@ function renderTool() {
       </div>
     </div>`;
 
+    if (summary.code_version_check && summary.code_version_check.length) {
+      h += `<div class="summary-card fadein" style="margin-top:-6px;">
+        <div class="sum-eyebrow" style="margin-bottom:8px;"><i class="ti ti-refresh-alert" style="font-size:12px;margin-right:4px;" aria-hidden="true"></i>Code edition check</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">`;
+      summary.code_version_check.forEach(c => {
+        const isOld = c.status === 'outdated';
+        const isUnk = c.status === 'unable-to-verify';
+        const role = isOld ? 'warning' : isUnk ? 'accent' : 'success';
+        const icon = isOld ? 'ti-alert-triangle' : isUnk ? 'ti-help-circle' : 'ti-check';
+        h += `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--${role}-bg);border-radius:8px;">
+          <i class="ti ${icon}" style="font-size:14px;color:var(--${role});margin-top:1px;flex-shrink:0;" aria-hidden="true"></i>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--${role});">${c.code}</div>
+            <div style="font-size:11px;color:var(--text-2);line-height:1.5;margin-top:1px;">${c.note}</div>
+          </div>
+        </div>`;
+      });
+      h += `</div></div>`;
+    }
+
     const fDefs = [['all',`All (${findings.length})`],['critical',`Critical (${cnt.critical})`],['major',`Major (${cnt.major})`],['minor',`Minor (${cnt.minor})`],['observation',`Notes (${cnt.observation})`],['doubt',`Doubts (${cnt.doubt})`]];
     h += `<div class="filter-bar">
       <div class="filters">`;
@@ -673,7 +752,8 @@ function renderTool() {
     });
     h += `</div>
       <div class="action-btns">
-        <button class="dl-btn" onclick="downloadReport()"><i class="ti ti-download" aria-hidden="true"></i> Download report</button>
+        <button class="dl-btn" onclick="downloadReport()"><i class="ti ti-file-type-html" aria-hidden="true"></i> HTML</button>
+        <button class="dl-btn" id="pdf-dl-btn" onclick="downloadReportPDF()"><i class="ti ti-file-type-pdf" aria-hidden="true"></i> PDF</button>
         <button class="reset-btn" onclick="hwrst()"><i class="ti ti-refresh" aria-hidden="true"></i> New review</button>
       </div>
     </div>`;
@@ -734,4 +814,5 @@ window.hwrst  = ()     => { S={calcFiles:[],refFiles:[],step:1,findings:[],summa
 </script>
 </body>
 </html>
+
 
