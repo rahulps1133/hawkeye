@@ -1,7 +1,6 @@
-export const maxDuration = 60; // Allow up to 60s for large documents
+export const maxDuration = 60;
 
 export default async function handler(req, res) {
-  // CORS headers so the browser can call this endpoint
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,22 +8,39 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured on server.' });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const { systemPrompt, userContent } = req.body;
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(geminiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(req.body)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          { role: 'user', parts: [{ text: userContent }] }
+        ],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 8000,
+          responseMimeType: 'application/json'
+        }
+      })
     });
 
     const data = await response.json();
-    return res.status(response.status).json(data);
+
+    if (data.error) {
+      return res.status(response.status).json({ error: data.error.message || 'Gemini API error' });
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return res.status(200).json({ text });
+
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Server error' });
   }
