@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hawkeye — Structural Calculation Reviewer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f0ee;color:#0c1e3d;min-height:100vh;}
+
+:root{
+  --navy:#0c1e3d;--navy2:#152d56;
+  --amber:#f59e0b;--amber-h:#d97706;--amber-bg:rgba(245,158,11,0.1);--amber-border:rgba(245,158,11,0.3);
+  --white:#ffffff;--bg:#f1f0ee;--card:#ffffff;--border:#e4e2de;--border-strong:#ccc9c2;
+  --text-1:#0c1e3d;--text-2:#4a4a4a;--text-3:#7a7a7a;--text-4:#a0a0a0;
+  --danger:#c0392b;--danger-bg:#fdedec;--danger-border:#f5c6c6;
+  --warning:#d97706;--warning-bg:#fef9e7;--warning-border:#fde68a;
+  --success:#1a7a4a;--success-bg:#eafaf1;--success-border:#a9dfbf;
+  --accent:#1a5ba8;--accent-bg:#e8f0fb;--accent-border:#bfcfef;
+}
+
+/* ── Header ── */
+.hdr{background:var(--navy);padding:13px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.07);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-name{font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px;}
+.logo-name em{color:var(--amber);font-style:normal;}
+.logo-tag{font-size:10px;color:rgba(255,255,255,0.42);border-left:1px solid rgba(255,255,255,0.14);padding-left:10px;margin-left:2px;}
+
+/* ── Hero ── */
+.hero{background:var(--navy);padding:56px 32px 60px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:700px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 65%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none;}
+.hero-h1{font-size:38px;font-weight:600;color:#fff;margin-bottom:14px;line-height:1.2;letter-spacing:-.5px;position:relative;}
+.hero-h1 em{color:var(--amber);font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,0.72);max-width:540px;margin:0 auto 30px;line-height:1.75;position:relative;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--amber);color:var(--navy);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;position:relative;}
+.hero-cta:hover{background:var(--amber-h);}
+.hero-note{margin-top:13px;font-size:11px;color:rgba(255,255,255,0.38);position:relative;}
+
+/* ── White band ── */
+.band{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+
+/* ── Section ── */
+.section{padding:44px 32px;max-width:1020px;margin:0 auto;width:100%;}
+.eyebrow{font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:1.3px;text-align:center;margin-bottom:8px;}
+.h2{font-size:23px;font-weight:600;color:var(--navy);text-align:center;margin-bottom:4px;}
+.h2-sub{font-size:13px;color:var(--text-2);text-align:center;}
+
+/* ── How it works ── */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:26px;}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 16px;text-align:center;}
+.step-ico{width:42px;height:42px;border-radius:50%;background:var(--amber-bg);border:1px solid var(--amber-border);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+.step-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.step-desc{font-size:12px;color:var(--text-2);line-height:1.65;}
+
+/* ── Catches ── */
+.catches-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 28px 20px;}
+.catches-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px;margin-top:18px;}
+.catch-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:8px;transition:background .1s;}
+.catch-item:hover{background:#fafaf9;}
+.catch-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:5px;}
+.catch-text{font-size:12px;color:var(--text-2);line-height:1.5;}
+
+/* ── Tool ── */
+.tool-wrap{padding:44px 32px 64px;max-width:1020px;margin:0 auto;width:100%;}
+
+/* ── Panels ── */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:660px){.panels{grid-template-columns:1fr;}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.panel-hdr{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;}
+.panel-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.panel-label{font-size:13px;font-weight:700;color:var(--navy);}
+.panel-sub{font-size:10px;color:var(--text-3);margin-top:2px;}
+.dropzone{border:2px dashed var(--border-strong);border-radius:8px;padding:24px 14px;text-align:center;cursor:pointer;background:#fafaf9;transition:all .15s;}
+.dropzone:hover,.dropzone.drag{border-color:var(--amber);background:var(--amber-bg);}
+.dropzone.drag-ref{border-color:var(--success)!important;background:var(--success-bg)!important;}
+.dz-icon{font-size:24px;color:var(--text-4);margin-bottom:7px;}
+.dz-label{font-size:12px;color:var(--text-2);font-weight:500;}
+.dz-sub{font-size:10px;color:var(--text-3);margin-top:3px;}
+.file-item{display:flex;align-items:center;gap:7px;padding:7px 9px;background:#fafaf9;border:1px solid var(--border);border-radius:7px;margin-top:6px;}
+.file-name{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--navy);}
+.file-size{font-size:10px;color:var(--text-3);flex-shrink:0;}
+.file-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0;opacity:.6;transition:opacity .15s;}
+.file-del:hover{opacity:1;}
+.tip-box{margin-top:9px;padding:9px 11px;background:#f9f8f5;border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text-2);line-height:1.55;}
+
+/* ── CTA ── */
+.cta-row{text-align:center;margin-bottom:8px;}
+.error-box{padding:10px 14px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:8px;color:var(--danger);font-size:12px;margin-bottom:14px;display:flex;align-items:center;gap:7px;line-height:1.5;}
+.review-btn{padding:12px 32px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:background .15s;}
+.review-btn:hover{background:var(--navy2);}
+.review-btn:disabled{opacity:.5;cursor:default;}
+
+/* ── Loading ── */
+.loading{text-align:center;padding:64px 20px;}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top:3px solid var(--amber);border-radius:50%;display:inline-block;animation:hw-spin .8s linear infinite;margin-bottom:18px;}
+@keyframes hw-spin{to{transform:rotate(360deg)}}
+@keyframes hw-fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:hw-fadein .22s ease;}
+.loading-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:7px;}
+.loading-sub{font-size:12px;color:var(--text-2);max-width:360px;margin:0 auto;line-height:1.6;}
+.loading-steps{margin-top:20px;display:inline-flex;flex-direction:column;gap:6px;text-align:left;}
+.lstep{font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:7px;}
+.lstep.active{color:var(--navy);font-weight:500;}
+.lstep.done{color:var(--success);}
+
+/* ── Summary ── */
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+.summary-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.summary-text{flex:1;min-width:180px;}
+.sum-eyebrow{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;}
+.sum-body{font-size:13px;color:var(--text-1);line-height:1.7;margin-bottom:9px;}
+.tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag-code{padding:2px 8px;background:var(--accent-bg);color:var(--accent);border-radius:10px;font-size:10px;font-weight:700;}
+.tag-sw{padding:2px 8px;background:#f0edfb;color:#5b21b6;border-radius:10px;font-size:10px;font-weight:700;}
+.status-pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap;letter-spacing:.2px;}
+.counts{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap;justify-content:flex-end;}
+.count-box{text-align:center;padding:8px 12px;border-radius:8px;min-width:52px;}
+.count-n{font-size:22px;font-weight:700;}
+.count-l{font-size:9px;text-transform:uppercase;font-weight:700;letter-spacing:.4px;margin-top:1px;}
+
+/* ── Filter bar ── */
+.filter-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+.filters{display:flex;gap:5px;flex-wrap:wrap;}
+.filter-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);cursor:pointer;font-size:11px;font-weight:500;background:var(--card);color:var(--text-2);transition:all .12s;}
+.filter-btn:hover{border-color:var(--border-strong);color:var(--text-1);}
+.filter-btn.active{font-weight:700;}
+.action-btns{display:flex;gap:6px;align-items:center;}
+.dl-btn{padding:7px 16px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s;}
+.dl-btn:hover{background:var(--navy2);}
+.reset-btn{padding:6px 11px;background:none;color:var(--text-2);border:1px solid var(--border);border-radius:8px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .12s;}
+.reset-btn:hover{border-color:var(--border-strong);color:var(--text-1);}
+
+/* ── Findings ── */
+.findings-wrap{display:grid;grid-template-columns:1fr;gap:12px;}
+.findings-wrap.split{grid-template-columns:1fr 1fr;}
+@media(max-width:720px){.findings-wrap.split{grid-template-columns:1fr;}}
+.findings-list{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.scroll{max-height:540px;overflow-y:auto;}
+.scroll::-webkit-scrollbar{width:4px;}
+.scroll::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px;}
+.finding-row{padding:12px 15px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.finding-row:last-child{border-bottom:none;}
+.finding-row:hover,.finding-row.sel{background:#fafaf9;}
+.finding-inner{display:flex;align-items:flex-start;gap:9px;}
+.sev-pill{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px;border:1px solid;text-transform:uppercase;letter-spacing:.3px;}
+.f-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.f-loc{font-size:10px;color:var(--text-3);display:flex;align-items:center;gap:3px;}
+.empty-state{padding:36px;text-align:center;font-size:12px;color:var(--text-3);}
+
+/* ── Detail ── */
+.detail{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.detail-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.detail-title{font-size:15px;font-weight:600;color:var(--navy);margin:7px 0 3px;line-height:1.3;}
+.detail-num{font-size:10px;color:var(--text-3);}
+.close-btn{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:22px;line-height:1;padding:0;flex-shrink:0;transition:color .15s;}
+.close-btn:hover{color:var(--text-1);}
+.detail-loc{font-size:11px;color:var(--accent);margin-bottom:15px;display:flex;align-items:center;gap:5px;}
+.sec-label{font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
+.detail-desc{font-size:12px;color:var(--text-1);line-height:1.75;margin-bottom:15px;}
+.excerpt-box{background:#fafaf9;border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:0 7px 7px 0;padding:10px 12px;font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--text-2);line-height:1.65;margin-bottom:15px;word-break:break-word;}
+.code-ref{font-size:11px;color:var(--accent);margin-bottom:15px;display:flex;align-items:center;gap:6px;}
+.rec-box{border-radius:8px;padding:13px 14px;}
+.rec-body{font-size:12px;line-height:1.75;}
+
+/* ── Footer ── */
+footer{background:var(--navy);padding:24px 32px;text-align:center;}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:7px;}
+.footer-name{font-size:14px;font-weight:700;color:#fff;}
+.footer-name em{color:var(--amber);font-style:normal;}
+.footer-sub{font-size:11px;color:rgba(255,255,255,0.38);line-height:1.65;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <header class="hdr">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/>
+        <circle cx="16" cy="16" r="4" fill="#f59e0b"/>
+        <circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/>
+        <line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-name">Hawk<em>eye</em></span>
+      <span class="logo-tag">Structural calc reviewer</span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-h1">Catches what <em>slips past</em> the eye</h1>
+    <p class="hero-sub">Upload any structural calculation package. Hawkeye reads every line, cross-checks against applicable codes, and flags what doesn't add up — errors, omissions, and anything that needs a second look.</p>
+    <button class="hero-cta" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">
+      <i class="ti ti-upload" aria-hidden="true"></i> Start a review
+    </button>
+    <p class="hero-note">Works with PDF · DOCX · STAAD · ETABS outputs &nbsp;·&nbsp; Covers ACI · Eurocode · BS · IS · AISC · ASCE and more</p>
+  </section>
+
+  <!-- How it works -->
+  <div class="band">
+    <div class="section">
+      <p class="eyebrow">How it works</p>
+      <h2 class="h2">Three steps. One sharp review.</h2>
+      <div class="how-grid">
+        <div class="step-card">
+          <div class="step-ico"><i class="ti ti-upload" style="font-size:19px;color:var(--amber);" aria-hidden="true"></i></div>
+          <div class="step-title">Upload your calcs</div>
+          <div class="step-desc">Drop in the calculation package — PDF or DOCX. STAAD and ETABS outputs work too. Optionally add your reference code documents.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-ico"><i class="ti ti-cpu" style="font-size:19px;color:var(--amber);" aria-hidden="true"></i></div>
+          <div class="step-title">AI reads every line</div>
+          <div class="step-desc">Hawkeye checks your numbers, load combinations, unit consistency, software outputs, and code compliance — all at once.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-ico"><i class="ti ti-list-check" style="font-size:19px;color:var(--amber);" aria-hidden="true"></i></div>
+          <div class="step-title">Review the findings</div>
+          <div class="step-desc">Browse issues by severity. Click any finding for the full context, the relevant code clause, and a clear recommendation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What it catches -->
+  <div class="section" style="padding-bottom:8px;">
+    <p class="eyebrow">What Hawkeye catches</p>
+    <h2 class="h2">The usual suspects — and the subtle ones</h2>
+    <p class="h2-sub" style="margin-top:6px;margin-bottom:22px;">Built for people who can read a calc but want a sharp second opinion</p>
+    <div class="catches-wrap">
+      <div class="catches-grid">
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Math errors and formula mistakes</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Incorrect load combinations</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Unit inconsistencies and conversion errors</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Code non-compliance (ACI, Eurocode, BS, IS…)</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Missing or inadequate safety factors</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">STAAD / ETABS output interpretation issues</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Incomplete or missing calculation sections</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Assumptions that need explicit flagging</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Demand vs capacity ratio gaps</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Cross-section reference errors</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Unclear or ambiguous calculation steps</div></div>
+        <div class="catch-item"><div class="catch-dot"></div><div class="catch-text">Things that simply don't add up</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:1px;background:var(--border);margin:44px 32px 0;"></div>
+
+  <!-- Tool -->
+  <div class="tool-wrap" id="tool">
+    <div style="text-align:center;margin-bottom:28px;">
+      <p class="eyebrow">Review tool</p>
+      <h2 class="h2">Upload your package and go</h2>
+    </div>
+    <div id="tool-body"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-logo">
+      <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/>
+        <circle cx="16" cy="16" r="4" fill="#f59e0b"/>
+        <circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/>
+        <line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="footer-name">Hawk<em>eye</em></span>
+    </div>
+    <div class="footer-sub">AI-assisted structural calculation review<br>Not a substitute for professional engineering sign-off · All findings must be verified by a qualified engineer</div>
+  </footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════════════
+let S = {
+  calcFiles:[], refFiles:[],
+  step:1, findings:[], summary:null,
+  selected:null, filter:'all',
+  error:'', loadingMsg:'',
+  dragCalc:false, dragRef:false
+};
+
+// ══════════════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  }, 800);
+  renderTool();
+});
+
+// ══════════════════════════════════════════════════════════════════════
+//  FILE READING
+// ══════════════════════════════════════════════════════════════════════
+async function readFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (['txt','md','csv'].includes(ext)) return new Promise((res,rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => rej(new Error('read error')); r.readAsText(file);
+  });
+  if (ext === 'docx' || ext === 'doc') {
+    if (!window.mammoth) throw new Error('DOCX reader not ready — wait a moment and try again');
+    const buf = await file.arrayBuffer();
+    return (await window.mammoth.extractRawText({ arrayBuffer: buf })).value;
+  }
+  if (ext === 'pdf') {
+    if (!window.pdfjsLib) throw new Error('PDF reader not ready — wait a moment and try again');
+    const buf = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+    let txt = `[PDF: ${file.name}, ${pdf.numPages} pages]\n`;
+    const max = Math.min(pdf.numPages, 25);
+    for (let i = 1; i <= max; i++) {
+      const pg = await pdf.getPage(i);
+      const ct = await pg.getTextContent();
+      txt += `\n--- Page ${i} ---\n` + ct.items.map(x => x.str).join(' ');
+    }
+    if (pdf.numPages > max) txt += `\n...[${pdf.numPages - max} more pages truncated]`;
+    return txt;
+  }
+  if (['jpg','jpeg','png','webp','gif'].includes(ext)) return `[IMAGE: ${file.name} — formula/diagram image]`;
+  return `[FILE: ${file.name}]`;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  REVIEW
+// ══════════════════════════════════════════════════════════════════════
+async function startReview() {
+  if (!S.calcFiles.length) { S.error = 'Upload at least one calculation document to review.'; renderTool(); return; }
+  S.error = ''; S.step = 2; S.loadingMsg = 'Reading your calculation documents…'; renderTool();
+  try {
+    const calcTexts = await Promise.all(S.calcFiles.map(async f => {
+      try { return `\n\n=== DOCUMENT: ${f.name} ===\n` + await readFile(f); }
+      catch(e) { return `\n\n=== ${f.name} ===\n[Could not read: ${e.message}]`; }
+    }));
+    S.loadingMsg = 'Processing reference codes…'; renderTool();
+    const refTexts = await Promise.all(S.refFiles.map(async f => {
+      try { return `\n\n=== REFERENCE: ${f.name} ===\n` + await readFile(f); }
+      catch(e) { return `\n\n=== ${f.name} ===\n[Could not read: ${e.message}]`; }
+    }));
+    const calc = calcTexts.join('').substring(0, 55000);
+    const refs = refTexts.length ? '\n\n=== PROVIDED REFERENCE CODES ===\n' + refTexts.join('').substring(0, 18000) : '';
+    S.loadingMsg = 'Hawkeye is scanning — this takes 30–60 seconds…'; renderTool();
+
+    const sysPrompt = `You are a highly experienced structural engineering reviewer. Your audience knows engineering — they understand kN, moment diagrams, load combinations, and safety factors. Be specific, precise, and direct about what's wrong and why it matters.
+
+You know ACI 318, AISC 360, ASCE 7, Eurocode EN 1990–1998, BS 5950, BS 8110, IS 456, IS 875, IS 1893, AS 1170, AS 3600, CSA standards, and national building codes. You can read STAAD.Pro, ETABS, SAP2000, RISA, SAFE, RAM, and MIDAS output reports.
+
+Flag ALL of: mathematical errors, formula misapplication, unit inconsistencies, incorrect load combinations, safety factor violations, demand/capacity issues, missing checks, software model interpretation problems, code non-compliance, incomplete sections, ambiguous steps, cross-reference errors.
+
+Mark type="doubt" for sections that aren't clearly wrong but need clarification.
+
+RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
+
+{
+  "summary": "2–3 sentence professional summary of the overall review",
+  "compliance_status": "compliant|non-compliant|needs-review",
+  "software_detected": ["software names found"],
+  "codes_referenced": ["standards and codes found"],
+  "findings": [
+    {
+      "id": 1,
+      "type": "error|warning|doubt|observation",
+      "severity": "critical|major|minor|observation",
+      "title": "Concise title, max 65 chars",
+      "location": "Page N / Section X.X / Eq. ref",
+      "description": "What is wrong and why it matters — specific and technical",
+      "code_reference": "Exact clause e.g. ACI 318-19 Cl. 9.4.1.1, or N/A",
+      "excerpt": "Relevant text or formula from the document, or empty string",
+      "recommendation": "What to check or fix"
+    }
+  ]
+}`;
+
+    // ↓ Calls the server-side function — API key never exposed to browser
+    const resp = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: sysPrompt,
+        messages: [{
+          role: 'user',
+          content: `Review this structural calculation package.${refs ? '\n\nReference codes provided — use them as the compliance baseline.' : '\n\nNo reference codes uploaded — use your engineering knowledge of applicable standards.'}\n\n${calc}${refs}`
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message || data.error || 'Server error');
+    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('Could not parse the review response. Please try again.');
+    const result = JSON.parse(m[0]);
+    S.findings = result.findings || [];
+    S.summary = result;
+    S.step = 3; S.selected = null; S.filter = 'all';
+  } catch(e) {
+    S.error = e.message || 'Review failed. Please try again.';
+    S.step = 1;
+  }
+  renderTool();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  DOWNLOAD REPORT
+// ══════════════════════════════════════════════════════════════════════
+function downloadReport() {
+  const { findings, summary, calcFiles } = S;
+  if (!findings.length || !summary) return;
+  const cnt = { critical:0, major:0, minor:0, observation:0 };
+  findings.forEach(f => { if (cnt[f.severity] !== undefined) cnt[f.severity]++; });
+  const sC = { critical:'#c0392b', major:'#d97706', minor:'#1a5ba8', observation:'#1a7a4a' };
+  const sB = { critical:'#fdedec', major:'#fef9e7', minor:'#e8f0fb', observation:'#eafaf1' };
+  const sBd = { critical:'#f5c6c6', major:'#fde68a', minor:'#bfcfef', observation:'#a9dfbf' };
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Hawkeye Review</title>
+<style>
+*{box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;max-width:920px;margin:0 auto;padding:28px 22px;color:#0c1e3d;line-height:1.6;background:#fff;}
+.edit-tip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 13px;font-size:12px;color:#1e40af;margin-bottom:18px;}
+.hdr-row{display:flex;align-items:center;gap:10px;border-bottom:3px solid #0c1e3d;padding-bottom:12px;margin-bottom:6px;}
+.hw-name{font-size:21px;font-weight:700;color:#0c1e3d;}.hw-name em{color:#f59e0b;font-style:normal;}
+.meta{font-size:12px;color:#6b7280;margin-bottom:20px;}
+.sum-box{background:#f7f6f3;border-left:4px solid #0c1e3d;padding:14px 17px;border-radius:0 8px 8px 0;margin-bottom:18px;}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.b-nc{background:#fdedec;color:#c0392b;}.b-nr{background:#fef9e7;color:#d97706;}.b-c{background:#eafaf1;color:#1a7a4a;}
+.stats{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.sc{padding:9px 14px;border-radius:8px;text-align:center;min-width:72px;}
+.sc .n{font-size:24px;font-weight:700;}.sc .l{font-size:9px;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-top:1px;}
+.sc-cr{background:#fdedec;color:#c0392b;}.sc-ma{background:#fef9e7;color:#d97706;}.sc-mi{background:#e8f0fb;color:#1a5ba8;}.sc-ob{background:#eafaf1;color:#1a7a4a;}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;}
+.tag-c{background:#e8f0fb;color:#1a5276;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.tag-s{background:#f0edfb;color:#5b21b6;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+h2{color:#0c1e3d;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;padding-bottom:5px;}
+.finding{margin:12px 0;border-radius:8px;border:1px solid;overflow:hidden;page-break-inside:avoid;}
+.fh{padding:10px 14px;display:flex;align-items:center;gap:9px;}
+.fb{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;color:#fff;letter-spacing:.3px;}
+.ft{font-size:13px;font-weight:700;}.fn{font-size:10px;color:#6b7280;}
+.fbody{padding:12px 14px;background:#fff;}
+.floc{font-size:11px;color:#1a5ba8;margin-bottom:7px;}
+.fdesc{font-size:12px;margin:0 0 9px;line-height:1.7;}
+.fexc{background:#f9f8f5;border-left:3px solid #ccc;padding:7px 9px;font-family:monospace;font-size:11px;color:#555;margin:7px 0;border-radius:0 4px 4px 0;}
+.fcr{font-size:11px;color:#1a5ba8;font-style:italic;margin:5px 0;}
+.frec{border-radius:6px;padding:9px 11px;font-size:12px;margin-top:8px;}
+.footer{margin-top:36px;border-top:1px solid #e5e7eb;padding-top:12px;font-size:11px;color:#6b7280;}
+[contenteditable]{outline:2px dashed transparent;border-radius:2px;transition:outline .15s;}
+[contenteditable]:hover{outline:2px dashed #93c5fd;}[contenteditable]:focus{outline:2px solid #3b82f6;}
+@media print{.edit-tip{display:none}.finding{break-inside:avoid;}}
+</style></head><body>
+<div class="edit-tip">✏ Click any text to edit before saving. Use Ctrl+P / Cmd+P to save as PDF.</div>
+<div class="hdr-row">
+  <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="#f59e0b"/><circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/><line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <span class="hw-name">Hawk<em>eye</em> Review Report</span>
+</div>
+<div class="meta" contenteditable="true">Date: ${new Date().toLocaleString()} · Files: ${calcFiles.map(f=>f.name).join(', ')}</div>
+<div class="sum-box">
+  <p contenteditable="true" style="margin:0 0 9px;font-size:13px;">${summary.summary}</p>
+  <span class="badge b-${summary.compliance_status==='compliant'?'c':summary.compliance_status==='non-compliant'?'nc':'nr'}">${summary.compliance_status.replace('-',' ').toUpperCase()}</span>
+  ${summary.codes_referenced?.length?`<div class="tags">${summary.codes_referenced.map(c=>`<span class="tag-c">${c}</span>`).join('')}</div>`:''}
+  ${summary.software_detected?.length?`<div class="tags">${summary.software_detected.map(s=>`<span class="tag-s">${s}</span>`).join('')}</div>`:''}
+</div>
+<div class="stats">
+  <div class="sc sc-cr"><div class="n">${cnt.critical}</div><div class="l">Critical</div></div>
+  <div class="sc sc-ma"><div class="n">${cnt.major}</div><div class="l">Major</div></div>
+  <div class="sc sc-mi"><div class="n">${cnt.minor}</div><div class="l">Minor</div></div>
+  <div class="sc sc-ob"><div class="n">${cnt.observation}</div><div class="l">Notes</div></div>
+</div>
+<h2>Detailed Findings</h2>
+${findings.map((f,i)=>`
+<div class="finding" style="border-color:${sBd[f.severity]};">
+  <div class="fh" style="background:${sB[f.severity]};">
+    <span class="fb" style="background:${sC[f.severity]};">${f.severity}</span>
+    <div><div class="fn">Finding #${i+1} · ${f.type.toUpperCase()}</div><div class="ft" contenteditable="true">${f.title}</div></div>
+  </div>
+  <div class="fbody">
+    <div class="floc" contenteditable="true">📍 ${f.location}</div>
+    <p class="fdesc" contenteditable="true">${f.description}</p>
+    ${f.excerpt?`<div class="fexc" contenteditable="true">${f.excerpt}</div>`:''}
+    ${f.code_reference&&f.code_reference!=='N/A'?`<div class="fcr" contenteditable="true">📚 ${f.code_reference}</div>`:''}
+    ${f.recommendation?`<div class="frec" style="background:${sB.observation};border:1px solid ${sBd.observation};" contenteditable="true"><strong style="color:${sC.observation};">Recommendation: </strong>${f.recommendation}</div>`:''}
+  </div>
+</div>`).join('')}
+<div class="footer" contenteditable="true">
+  <p>Reviewed using Hawkeye — all findings must be verified by a qualified engineer before design action is taken.</p>
+  <p>Reviewer: _________________________________________________ &nbsp;&nbsp; Date: _______________ &nbsp;&nbsp; Signature / Stamp:</p>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `Hawkeye-Review-${Date.now()}.html`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════════════
+function fileIcon(n) {
+  const e = (n||'').split('.').pop().toLowerCase();
+  if (e === 'pdf') return 'ti-file-type-pdf';
+  if (e === 'docx' || e === 'doc') return 'ti-file-type-doc';
+  if (['jpg','jpeg','png','webp'].includes(e)) return 'ti-photo';
+  return 'ti-file';
+}
+function fmt(b) { return (b/1024).toFixed(0) + 'KB'; }
+function getCounts() {
+  const c = { critical:0, major:0, minor:0, observation:0, doubt:0 };
+  S.findings.forEach(f => { if (c[f.severity] !== undefined) c[f.severity]++; if (f.type==='doubt') c.doubt++; });
+  return c;
+}
+function sevSt(s) {
+  const m = {
+    critical: { bg:'var(--danger-bg)', color:'var(--danger)', border:'var(--danger-border)' },
+    major:    { bg:'var(--warning-bg)', color:'var(--warning)', border:'var(--warning-border)' },
+    minor:    { bg:'var(--accent-bg)', color:'var(--accent)', border:'var(--accent-border)' },
+    observation: { bg:'var(--success-bg)', color:'var(--success)', border:'var(--success-border)' }
+  };
+  return m[s] || m.observation;
+}
+function addFiles(key, fileList) {
+  const arr = Array.from(fileList);
+  const ex = new Set(S[key].map(f => f.name));
+  S[key] = [...S[key], ...arr.filter(f => !ex.has(f.name))];
+  renderTool();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════════════════
+function renderTool() {
+  const el = document.getElementById('tool-body');
+  if (!el) return;
+  const { step, calcFiles, refFiles, findings, summary, selected, filter, error, dragCalc, dragRef } = S;
+  const cnt = getCounts();
+  const filtered = filter === 'all' ? findings : filter === 'doubt' ? findings.filter(f=>f.type==='doubt') : findings.filter(f=>f.severity===filter);
+  let h = '';
+
+  if (step === 1 || step === 2) {
+    h += `<div class="panels">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-ico" style="background:var(--amber-bg);border:1px solid var(--amber-border);">
+          <i class="ti ti-calculator" style="font-size:17px;color:var(--amber);" aria-hidden="true"></i>
+        </div>
+        <div><div class="panel-label">Calculation package</div><div class="panel-sub">PDF · DOCX · TXT — the report to review</div></div>
+      </div>
+      <div class="${'dropzone' + (dragCalc?' drag':'')}" onclick="document.getElementById('calc-in').click()" ondragover="event.preventDefault();hws('dragCalc',true)" ondragleave="hws('dragCalc',false)" ondrop="hwdrop(event,'calcFiles')" role="button" aria-label="Upload calculation files">
+        <div class="dz-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+        <div class="dz-label">Drop files or click to browse</div>
+        <div class="dz-sub">STAAD, ETABS outputs welcome</div>
+      </div>
+      <input id="calc-in" type="file" multiple accept=".pdf,.docx,.doc,.txt" style="display:none" onchange="hwf('calcFiles',this.files)">`;
+    calcFiles.forEach((f,i) => { h += `<div class="file-item"><i class="ti ${fileIcon(f.name)}" style="font-size:14px;color:var(--amber);" aria-hidden="true"></i><span class="file-name">${f.name}</span><span class="file-size">${fmt(f.size)}</span><button class="file-del" onclick="hwrm('calcFiles',${i})" aria-label="Remove">×</button></div>`; });
+    h += `</div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-ico" style="background:var(--success-bg);border:1px solid var(--success-border);">
+          <i class="ti ti-book-2" style="font-size:17px;color:var(--success);" aria-hidden="true"></i>
+        </div>
+        <div><div class="panel-label">Reference codes <span style="font-size:10px;font-weight:400;color:var(--text-3);">(optional)</span></div><div class="panel-sub">PDF · DOCX · formula images</div></div>
+      </div>
+      <div class="${'dropzone' + (dragRef?' drag-ref':'')}" onclick="document.getElementById('ref-in').click()" ondragover="event.preventDefault();hws('dragRef',true)" ondragleave="hws('dragRef',false)" ondrop="hwdrop(event,'refFiles')" role="button" aria-label="Upload reference codes">
+        <div class="dz-icon"><i class="ti ti-books" aria-hidden="true"></i></div>
+        <div class="dz-label">Drop codes or click to browse</div>
+        <div class="dz-sub">ACI · Eurocode · BS · IS · AS · AISC…</div>
+      </div>
+      <input id="ref-in" type="file" multiple accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,.webp" style="display:none" onchange="hwf('refFiles',this.files)">
+      <div class="tip-box">
+        <i class="ti ti-world-search" style="font-size:12px;margin-right:3px;" aria-hidden="true"></i>
+        No codes uploaded? Hawkeye will use its built-in knowledge of applicable standards.
+      </div>`;
+    refFiles.forEach((f,i) => { h += `<div class="file-item"><i class="ti ${fileIcon(f.name)}" style="font-size:14px;color:var(--success);" aria-hidden="true"></i><span class="file-name">${f.name}</span><span class="file-size">${fmt(f.size)}</span><button class="file-del" onclick="hwrm('refFiles',${i})" aria-label="Remove">×</button></div>`; });
+    h += `</div></div>`;
+  }
+
+  if (step === 1) {
+    if (error) h += `<div class="error-box"><i class="ti ti-alert-circle" aria-hidden="true"></i>${error}</div>`;
+    h += `<div class="cta-row">
+      <button class="review-btn" onclick="startReview()">
+        <i class="ti ti-zoom-check" style="font-size:18px;" aria-hidden="true"></i> Run Hawkeye review
+      </button>
+    </div>`;
+  }
+
+  if (step === 2) {
+    h += `<div class="loading fadein">
+      <div class="spinner"></div>
+      <div class="loading-title">Hawkeye is on it…</div>
+      <div class="loading-sub">${S.loadingMsg}</div>
+      <div class="loading-steps">
+        <div class="lstep done"><i class="ti ti-check" style="font-size:13px;color:var(--success);"></i> Documents uploaded</div>
+        <div class="lstep active"><i class="ti ti-loader-2" style="font-size:13px;animation:hw-spin .8s linear infinite;"></i> AI is reviewing calculations</div>
+        <div class="lstep"><i class="ti ti-report" style="font-size:13px;"></i> Findings will appear shortly</div>
+      </div>
+    </div>`;
+  }
+
+  if (step === 3 && summary) {
+    const stS = summary.compliance_status === 'compliant'
+      ? 'background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);'
+      : summary.compliance_status === 'non-compliant'
+      ? 'background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);'
+      : 'background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);';
+
+    h += `<div class="summary-card fadein">
+      <div class="summary-top">
+        <div class="summary-text">
+          <div class="sum-eyebrow">Review complete</div>
+          <div class="sum-body">${summary.summary}</div>
+          <div class="tags">
+            ${(summary.codes_referenced||[]).map(c=>`<span class="tag-code">${c}</span>`).join('')}
+            ${(summary.software_detected||[]).map(s=>`<span class="tag-sw">${s}</span>`).join('')}
+          </div>
+        </div>
+        <div>
+          <span class="status-pill" style="${stS}">${summary.compliance_status==='compliant'?'✓ ':summary.compliance_status==='non-compliant'?'✗ ':'⚠ '}${summary.compliance_status.replace('-',' ')}</span>
+          <div class="counts">
+            ${[['critical','danger'],['major','warning'],['minor','accent'],['observation','success']].map(([s,r])=>`
+            <div class="count-box" style="background:var(--${r}-bg);">
+              <div class="count-n" style="color:var(--${r});">${cnt[s]}</div>
+              <div class="count-l" style="color:var(--${r});">${s==='observation'?'notes':s}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    const fDefs = [['all',`All (${findings.length})`],['critical',`Critical (${cnt.critical})`],['major',`Major (${cnt.major})`],['minor',`Minor (${cnt.minor})`],['observation',`Notes (${cnt.observation})`],['doubt',`Doubts (${cnt.doubt})`]];
+    h += `<div class="filter-bar">
+      <div class="filters">`;
+    fDefs.forEach(([v,l]) => {
+      const a = filter === v;
+      const r = v==='critical'?'danger':v==='major'?'warning':v==='doubt'?'warning':'accent';
+      h += `<button class="filter-btn${a?' active':''}" onclick="hwflt('${v}')" style="${a?`background:var(--${r}-bg);color:var(--${r});border-color:var(--${r}-border);`:''}">${l}</button>`;
+    });
+    h += `</div>
+      <div class="action-btns">
+        <button class="dl-btn" onclick="downloadReport()"><i class="ti ti-download" aria-hidden="true"></i> Download report</button>
+        <button class="reset-btn" onclick="hwrst()"><i class="ti ti-refresh" aria-hidden="true"></i> New review</button>
+      </div>
+    </div>`;
+
+    h += `<div class="findings-wrap${selected?' split':''}">`;
+    h += `<div class="findings-list"><div class="scroll">`;
+    if (!filtered.length) h += `<div class="empty-state">No findings in this category.</div>`;
+    filtered.forEach(f => {
+      const st = sevSt(f.severity);
+      const isSel = selected && selected.id === f.id;
+      h += `<div class="finding-row${isSel?' sel':''}" onclick="hwsel(${f.id})">
+        <div class="finding-inner">
+          <span class="sev-pill" style="background:${st.bg};color:${st.color};border-color:${st.border};">${f.severity}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="f-title">#${f.id} ${f.title}</div>
+            <div class="f-loc"><i class="ti ti-map-pin" style="font-size:10px;" aria-hidden="true"></i> ${f.location}</div>
+          </div>
+          <i class="ti ti-chevron-${isSel?'down':'right'}" style="font-size:14px;color:var(--text-4);flex-shrink:0;" aria-hidden="true"></i>
+        </div>
+      </div>`;
+    });
+    h += `</div></div>`;
+
+    if (selected) {
+      const st = sevSt(selected.severity);
+      h += `<div class="detail fadein">
+        <div class="detail-head">
+          <div>
+            <span class="sev-pill" style="background:${st.bg};color:${st.color};border-color:${st.border};">${selected.severity} · ${selected.type}</span>
+            <div class="detail-title">${selected.title}</div>
+            <div class="detail-num">Finding #${selected.id}</div>
+          </div>
+          <button class="close-btn" onclick="hwsel(null)" aria-label="Close">×</button>
+        </div>
+        <div class="detail-loc"><i class="ti ti-map-pin" style="font-size:12px;" aria-hidden="true"></i>${selected.location}</div>
+        <div class="sec-label">What's wrong</div>
+        <div class="detail-desc">${selected.description}</div>`;
+      if (selected.excerpt) h += `<div class="sec-label">From your document</div><div class="excerpt-box">${selected.excerpt}</div>`;
+      if (selected.code_reference && selected.code_reference !== 'N/A') h += `<div class="code-ref"><i class="ti ti-book" style="font-size:13px;" aria-hidden="true"></i><span class="sec-label" style="margin:0;margin-right:5px;">Code ref</span>${selected.code_reference}</div>`;
+      if (selected.recommendation) h += `<div class="rec-box" style="background:var(--success-bg);border:1px solid var(--success-border);"><div class="sec-label">What to do</div><div class="rec-body" style="color:var(--success);">${selected.recommendation}</div></div>`;
+      h += `</div>`;
+    }
+    h += `</div>`;
+  }
+  el.innerHTML = h;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  HANDLERS
+// ══════════════════════════════════════════════════════════════════════
+window.hwf    = (k,fl) => addFiles(k, fl);
+window.hwrm   = (k,i)  => { S[k]=S[k].filter((_,j)=>j!==i); renderTool(); };
+window.hws    = (k,v)  => { S[k]=v; renderTool(); };
+window.hwdrop = (e,k)  => { e.preventDefault(); if(k==='calcFiles')S.dragCalc=false;else S.dragRef=false; if(e.dataTransfer?.files)addFiles(k,e.dataTransfer.files); };
+window.hwflt  = f      => { S.filter=f; S.selected=null; renderTool(); };
+window.hwsel  = id     => { if(id===null){S.selected=null;}else{const f=S.findings.find(x=>x.id===id);S.selected=(S.selected&&S.selected.id===id)?null:f;} renderTool(); };
+window.hwrst  = ()     => { S={calcFiles:[],refFiles:[],step:1,findings:[],summary:null,selected:null,filter:'all',error:'',loadingMsg:'',dragCalc:false,dragRef:false}; renderTool(); document.getElementById('tool').scrollIntoView({behavior:'smooth'}); };
+</script>
+</body>
+</html>
