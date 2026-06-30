@@ -398,10 +398,10 @@ RESPOND ONLY WITH VALID JSON. No text before or after. No markdown fences.
     });
 
     const data = await resp.json();
-    if (data.error) throw new Error(data.error || 'Server error');
+    if (data.error) throw new Error(data.error);
     const raw = data.text || '';
     const m = raw.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error('Could not parse the review response. Please try again.');
+    if (!m) throw new Error('The AI response did not contain valid data. This can happen with very large documents — try a shorter file or fewer pages.');
     const result = JSON.parse(m[0]);
     S.findings = result.findings || [];
     S.summary = result;
