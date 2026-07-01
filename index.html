@@ -11,33 +11,33 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f0ee;color:#0c1e3d;min-height:100vh;}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f8;color:#0d0f1a;min-height:100vh;}
 
 :root{
-  --navy:#0c1e3d;--navy2:#152d56;
-  --amber:#f59e0b;--amber-h:#d97706;--amber-bg:rgba(245,158,11,0.1);--amber-border:rgba(245,158,11,0.3);
-  --white:#ffffff;--bg:#f1f0ee;--card:#ffffff;--border:#e4e2de;--border-strong:#ccc9c2;
-  --text-1:#0c1e3d;--text-2:#4a4a4a;--text-3:#7a7a7a;--text-4:#a0a0a0;
+  --navy:#0d0f1a;--navy2:#1a1533;
+  --amber:#2dd4bf;--amber-h:#14b8a6;--amber-bg:rgba(45,212,191,0.1);--amber-border:rgba(45,212,191,0.3);
+  --white:#ffffff;--bg:#f1f0ee;--card:#ffffff;--border:#e2e6ef;--border-strong:#c0c8da;
+  --text-1:#0d0f1a;--text-2:#4a4a4a;--text-3:#7a7a7a;--text-4:#a0a0a0;
   --danger:#c0392b;--danger-bg:#fdedec;--danger-border:#f5c6c6;
-  --warning:#d97706;--warning-bg:#fef9e7;--warning-border:#fde68a;
+  --warning:#14b8a6;--warning-bg:#fef9e7;--warning-border:#fde68a;
   --success:#1a7a4a;--success-bg:#eafaf1;--success-border:#a9dfbf;
-  --accent:#1a5ba8;--accent-bg:#e8f0fb;--accent-border:#bfcfef;
+  --accent:#8b5cf6;--accent-bg:#ede9fe;--accent-border:#c4b5fd;
 }
 
 /* ── Header ── */
-.hdr{background:var(--navy);padding:13px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.07);}
+.hdr{background:linear-gradient(135deg,#0d0f1a 0%,#1a1533 100%);padding:13px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.07);}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-name{font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px;}
 .logo-name em{color:var(--amber);font-style:normal;}
 .logo-tag{font-size:10px;color:rgba(255,255,255,0.42);border-left:1px solid rgba(255,255,255,0.14);padding-left:10px;margin-left:2px;}
 
 /* ── Hero ── */
-.hero{background:var(--navy);padding:56px 32px 60px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;width:700px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 65%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none;}
+.hero{background:linear-gradient(160deg,#0d0f1a 0%,#150f2a 55%,#1e0f35 100%);padding:56px 32px 60px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:700px;height:400px;border-radius:50%;background:radial-gradient(ellipse 60% 40% at 40% 50%,rgba(45,212,191,0.12) 0%,transparent 60%), radial-gradient(ellipse 50% 40% at 65% 60%,rgba(139,92,246,0.1) 0%,transparent 60%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none;}
 .hero-h1{font-size:38px;font-weight:600;color:#fff;margin-bottom:14px;line-height:1.2;letter-spacing:-.5px;position:relative;}
 .hero-h1 em{color:var(--amber);font-style:normal;}
 .hero-sub{font-size:14px;color:rgba(255,255,255,0.72);max-width:540px;margin:0 auto 30px;line-height:1.75;position:relative;}
-.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--amber);color:var(--navy);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;position:relative;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--amber);color:#0d0f1a;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;position:relative;}
 .hero-cta:hover{background:var(--amber-h);}
 .hero-note{margin-top:13px;font-size:11px;color:rgba(255,255,255,0.38);position:relative;}
 
@@ -61,7 +61,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .catches-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 28px 20px;}
 .catches-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px;margin-top:18px;}
 .catch-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:8px;transition:background .1s;}
-.catch-item:hover{background:#fafaf9;}
+.catch-item:hover{background:#f7f8fc;}
 .catch-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:5px;}
 .catch-text{font-size:12px;color:var(--text-2);line-height:1.5;}
 
@@ -76,13 +76,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .panel-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .panel-label{font-size:13px;font-weight:700;color:var(--navy);}
 .panel-sub{font-size:10px;color:var(--text-3);margin-top:2px;}
-.dropzone{border:2px dashed var(--border-strong);border-radius:8px;padding:24px 14px;text-align:center;cursor:pointer;background:#fafaf9;transition:all .15s;}
+.dropzone{border:2px dashed var(--border-strong);border-radius:8px;padding:24px 14px;text-align:center;cursor:pointer;background:#f7f8fc;transition:all .15s;}
 .dropzone:hover,.dropzone.drag{border-color:var(--amber);background:var(--amber-bg);}
 .dropzone.drag-ref{border-color:var(--success)!important;background:var(--success-bg)!important;}
 .dz-icon{font-size:24px;color:var(--text-4);margin-bottom:7px;}
 .dz-label{font-size:12px;color:var(--text-2);font-weight:500;}
 .dz-sub{font-size:10px;color:var(--text-3);margin-top:3px;}
-.file-item{display:flex;align-items:center;gap:7px;padding:7px 9px;background:#fafaf9;border:1px solid var(--border);border-radius:7px;margin-top:6px;}
+.file-item{display:flex;align-items:center;gap:7px;padding:7px 9px;background:#f7f8fc;border:1px solid var(--border);border-radius:7px;margin-top:6px;}
 .file-name{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--navy);}
 .file-size{font-size:10px;color:var(--text-3);flex-shrink:0;}
 .file-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0;opacity:.6;transition:opacity .15s;}
@@ -92,7 +92,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 /* ── CTA ── */
 .cta-row{text-align:center;margin-bottom:8px;}
 .error-box{padding:10px 14px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:8px;color:var(--danger);font-size:12px;margin-bottom:14px;display:flex;align-items:center;gap:7px;line-height:1.5;}
-.review-btn{padding:12px 32px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:background .15s;}
+.review-btn{padding:12px 32px;background:linear-gradient(135deg,#0d0f1a,#1a1533);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:background .15s;}
 .review-btn:hover{background:var(--navy2);}
 .review-btn:disabled{opacity:.5;cursor:default;}
 
@@ -131,7 +131,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .filter-btn:hover{border-color:var(--border-strong);color:var(--text-1);}
 .filter-btn.active{font-weight:700;}
 .action-btns{display:flex;gap:6px;align-items:center;}
-.dl-btn{padding:7px 16px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s;}
+.dl-btn{padding:7px 16px;background:linear-gradient(135deg,#0d0f1a,#1a1533);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s;}
 .dl-btn:hover{background:var(--navy2);}
 .reset-btn{padding:6px 11px;background:none;color:var(--text-2);border:1px solid var(--border);border-radius:8px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .12s;}
 .reset-btn:hover{border-color:var(--border-strong);color:var(--text-1);}
@@ -146,7 +146,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .scroll::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px;}
 .finding-row{padding:12px 15px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
 .finding-row:last-child{border-bottom:none;}
-.finding-row:hover,.finding-row.sel{background:#fafaf9;}
+.finding-row:hover,.finding-row.sel{background:#f7f8fc;}
 .finding-inner{display:flex;align-items:flex-start;gap:9px;}
 .sev-pill{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px;border:1px solid;text-transform:uppercase;letter-spacing:.3px;}
 .f-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -163,13 +163,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .detail-loc{font-size:11px;color:var(--accent);margin-bottom:15px;display:flex;align-items:center;gap:5px;}
 .sec-label{font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
 .detail-desc{font-size:12px;color:var(--text-1);line-height:1.75;margin-bottom:15px;}
-.excerpt-box{background:#fafaf9;border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:0 7px 7px 0;padding:10px 12px;font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--text-2);line-height:1.65;margin-bottom:15px;word-break:break-word;}
+.excerpt-box{background:#f7f8fc;border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:0 7px 7px 0;padding:10px 12px;font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--text-2);line-height:1.65;margin-bottom:15px;word-break:break-word;}
 .code-ref{font-size:11px;color:var(--accent);margin-bottom:15px;display:flex;align-items:center;gap:6px;}
 .rec-box{border-radius:8px;padding:13px 14px;}
 .rec-body{font-size:12px;line-height:1.75;}
 
 /* ── Footer ── */
-footer{background:var(--navy);padding:24px 32px;text-align:center;}
+footer{background:linear-gradient(135deg,#0d0f1a 0%,#1a1533 100%);padding:24px 32px;text-align:center;}
 .footer-logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:7px;}
 .footer-name{font-size:14px;font-weight:700;color:#fff;}
 .footer-name em{color:var(--amber);font-style:normal;}
@@ -182,15 +182,7 @@ footer{background:var(--navy);padding:24px 32px;text-align:center;}
   <!-- Header -->
   <header class="hdr">
     <div class="logo">
-      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/>
-        <circle cx="16" cy="16" r="4" fill="#f59e0b"/>
-        <circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/>
-        <line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-      </svg>
+      <img src="logo.jpg" alt="Logo" style="width:32px;height:32px;object-fit:contain;border-radius:4px;">
       <span class="logo-name">Hawk<em>eye</em></span>
       <span class="logo-tag">Structural calc reviewer</span>
     </div>
@@ -268,18 +260,11 @@ footer{background:var(--navy);padding:24px 32px;text-align:center;}
   <!-- Footer -->
   <footer>
     <div class="footer-logo">
-      <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/>
-        <circle cx="16" cy="16" r="4" fill="#f59e0b"/>
-        <circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/>
-        <line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/>
-      </svg>
+      <img src="logo.jpg" alt="Logo" style="width:32px;height:32px;object-fit:contain;border-radius:4px;">
       <span class="footer-name">Hawk<em>eye</em></span>
     </div>
     <div class="footer-sub">AI-assisted structural calculation review<br>Not a substitute for professional engineering sign-off · All findings must be verified by a qualified engineer</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.35);">Developed by <span style="color:rgba(245,158,11,0.7);font-weight:500;">Ar Design Atelier</span></div>
   </footer>
 </div>
 
@@ -461,37 +446,37 @@ function buildReportHTML() {
   const { findings, summary, calcFiles } = S;
   const cnt = { critical:0, major:0, minor:0, observation:0 };
   findings.forEach(f => { if (cnt[f.severity] !== undefined) cnt[f.severity]++; });
-  const sC = { critical:'#c0392b', major:'#d97706', minor:'#1a5ba8', observation:'#1a7a4a' };
-  const sB = { critical:'#fdedec', major:'#fef9e7', minor:'#e8f0fb', observation:'#eafaf1' };
-  const sBd = { critical:'#f5c6c6', major:'#fde68a', minor:'#bfcfef', observation:'#a9dfbf' };
+  const sC = { critical:'#c0392b', major:'#14b8a6', minor:'#8b5cf6', observation:'#1a7a4a' };
+  const sB = { critical:'#fdedec', major:'#fef9e7', minor:'#ede9fe', observation:'#eafaf1' };
+  const sBd = { critical:'#f5c6c6', major:'#fde68a', minor:'#c4b5fd', observation:'#a9dfbf' };
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Hawkeye Review</title>
 <style>
-*{box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;max-width:920px;margin:0 auto;padding:28px 22px;color:#0c1e3d;line-height:1.6;background:#fff;}
+*{box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;max-width:920px;margin:0 auto;padding:28px 22px;color:#0d0f1a;line-height:1.6;background:#fff;}
 .edit-tip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 13px;font-size:12px;color:#1e40af;margin-bottom:18px;}
-.hdr-row{display:flex;align-items:center;gap:10px;border-bottom:3px solid #0c1e3d;padding-bottom:12px;margin-bottom:6px;}
-.hw-name{font-size:21px;font-weight:700;color:#0c1e3d;}.hw-name em{color:#f59e0b;font-style:normal;}
+.hdr-row{display:flex;align-items:center;gap:10px;border-bottom:3px solid #0d0f1a;padding-bottom:12px;margin-bottom:6px;}
+.hw-name{font-size:21px;font-weight:700;color:#0d0f1a;}.hw-name em{color:#2dd4bf;font-style:normal;}
 .meta{font-size:12px;color:#6b7280;margin-bottom:20px;}
-.sum-box{background:#f7f6f3;border-left:4px solid #0c1e3d;padding:14px 17px;border-radius:0 8px 8px 0;margin-bottom:18px;}
+.sum-box{background:#f7f6f3;border-left:4px solid #0d0f1a;padding:14px 17px;border-radius:0 8px 8px 0;margin-bottom:18px;}
 .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
-.b-nc{background:#fdedec;color:#c0392b;}.b-nr{background:#fef9e7;color:#d97706;}.b-c{background:#eafaf1;color:#1a7a4a;}
+.b-nc{background:#fdedec;color:#c0392b;}.b-nr{background:#fef9e7;color:#14b8a6;}.b-c{background:#eafaf1;color:#1a7a4a;}
 .stats{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
 .sc{padding:9px 14px;border-radius:8px;text-align:center;min-width:72px;}
 .sc .n{font-size:24px;font-weight:700;}.sc .l{font-size:9px;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-top:1px;}
-.sc-cr{background:#fdedec;color:#c0392b;}.sc-ma{background:#fef9e7;color:#d97706;}.sc-mi{background:#e8f0fb;color:#1a5ba8;}.sc-ob{background:#eafaf1;color:#1a7a4a;}
+.sc-cr{background:#fdedec;color:#c0392b;}.sc-ma{background:#fef9e7;color:#14b8a6;}.sc-mi{background:#ede9fe;color:#8b5cf6;}.sc-ob{background:#eafaf1;color:#1a7a4a;}
 .tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;}
-.tag-c{background:#e8f0fb;color:#1a5276;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.tag-c{background:#ede9fe;color:#5b21b6;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
 .tag-s{background:#f0edfb;color:#5b21b6;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
-h2{color:#0c1e3d;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;padding-bottom:5px;}
+h2{color:#0d0f1a;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;padding-bottom:5px;}
 .finding{margin:12px 0;border-radius:8px;border:1px solid;overflow:hidden;page-break-inside:avoid;}
 .fh{padding:10px 14px;display:flex;align-items:center;gap:9px;}
 .fb{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;color:#fff;letter-spacing:.3px;}
 .ft{font-size:13px;font-weight:700;}.fn{font-size:10px;color:#6b7280;}
 .fbody{padding:12px 14px;background:#fff;}
-.floc{font-size:11px;color:#1a5ba8;margin-bottom:7px;}
+.floc{font-size:11px;color:#8b5cf6;margin-bottom:7px;}
 .fdesc{font-size:12px;margin:0 0 9px;line-height:1.7;}
 .fexc{background:#f9f8f5;border-left:3px solid #ccc;padding:7px 9px;font-family:monospace;font-size:11px;color:#555;margin:7px 0;border-radius:0 4px 4px 0;}
-.fcr{font-size:11px;color:#1a5ba8;font-style:italic;margin:5px 0;}
+.fcr{font-size:11px;color:#8b5cf6;font-style:italic;margin:5px 0;}
 .frec{border-radius:6px;padding:9px 11px;font-size:12px;margin-top:8px;}
 .footer{margin-top:36px;border-top:1px solid #e5e7eb;padding-top:12px;font-size:11px;color:#6b7280;}
 [contenteditable]{outline:2px dashed transparent;border-radius:2px;transition:outline .15s;}
@@ -500,7 +485,7 @@ h2{color:#0c1e3d;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;
 </style></head><body>
 <div class="edit-tip">✏ Click any text to edit before saving. Use Ctrl+P / Cmd+P to save as PDF.</div>
 <div class="hdr-row">
-  <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="16" rx="13" ry="8.5" stroke="#f59e0b" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="#f59e0b"/><circle cx="16" cy="16" r="1.5" fill="#0c1e3d"/><line x1="16" y1="1.5" x2="16" y2="6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="16" y1="26" x2="16" y2="30.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="1.5" y1="16" x2="6" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><line x1="26" y1="16" x2="30.5" y2="16" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <img src="logo.jpg" alt="Logo" style="width:32px;height:32px;object-fit:contain;border-radius:4px;">
   <span class="hw-name">Hawk<em>eye</em> Review Report</span>
 </div>
 <div class="meta" contenteditable="true">Date: ${new Date().toLocaleString()} · Files: ${calcFiles.map(f=>f.name).join(', ')}</div>
@@ -512,7 +497,7 @@ h2{color:#0c1e3d;margin-top:26px;font-size:16px;border-bottom:1px solid #e5e7eb;
 </div>
 ${summary.code_version_check?.length?`
 <h2>Code Edition Check</h2>
-${summary.code_version_check.map(c=>`<div style="padding:9px 12px;margin:6px 0;border-radius:6px;background:${c.status==='outdated'?'#fef9e7':c.status==='unable-to-verify'?'#e8f0fb':'#eafaf1'};"><strong style="font-size:12px;">${c.code}</strong><div style="font-size:11px;color:#555;margin-top:2px;">${c.note}</div></div>`).join('')}
+${summary.code_version_check.map(c=>`<div style="padding:9px 12px;margin:6px 0;border-radius:6px;background:${c.status==='outdated'?'#fef9e7':c.status==='unable-to-verify'?'#ede9fe':'#eafaf1'};"><strong style="font-size:12px;">${c.code}</strong><div style="font-size:11px;color:#555;margin-top:2px;">${c.note}</div></div>`).join('')}
 `:''}
 <div class="stats">
   <div class="sc sc-cr"><div class="n">${cnt.critical}</div><div class="l">Critical</div></div>
@@ -814,5 +799,3 @@ window.hwrst  = ()     => { S={calcFiles:[],refFiles:[],step:1,findings:[],summa
 </script>
 </body>
 </html>
-
-
